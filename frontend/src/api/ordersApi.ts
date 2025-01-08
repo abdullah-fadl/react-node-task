@@ -8,8 +8,8 @@ export const fetchOrders = async () => {
 };
 
 export const fetchOrderById = async (id: string) => {
-    const response = await axios.get(`${API_URL}?${id}`);
-    return response.data[0];
+    const response = await axios.get(`${API_URL}/${id}`);
+    return response.data;
 };
 
 export const createOrder = async (order: any) => {

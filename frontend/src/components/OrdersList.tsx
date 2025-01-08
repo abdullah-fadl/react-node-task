@@ -2,8 +2,9 @@ import React from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { fetchOrders, deleteOrder } from '../api/ordersApi';
 import { useNavigate } from 'react-router-dom';
+import { Container, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 
-const OrdersList = () => {
+const OrdersList: React.FC = () => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
@@ -19,39 +20,53 @@ const OrdersList = () => {
     if (error) return <p>Error fetching orders.</p>;
 
     return (
-        <div>
-            <h2>Orders</h2>
-            <button onClick={() => navigate('/create')}>Create Order</button>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Customer Name</th>
-                        <th>Product</th>
-                        <th>Quantity</th>
-                        <th>Total Price</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {orders.map((order: any) => (
-                        <tr key={order._id}>
-                            <td>{order._id}</td>
-                            <td>{order.customerName}</td>
-                            <td>{order.product}</td>
-                            <td>{order.quantity}</td>
-                            <td>{order.totalPrice}</td>
-                            <td>{order.status}</td>
-                            <td>
-                                <button onClick={() => navigate(`/edit/${order._id}`)}>Edit</button>
-                                <button onClick={() => deleteMutation.mutate(order._id)}>Delete</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+        <Container>
+            <Typography variant="h4" gutterBottom>
+                Orders
+            </Typography>
+
+            {/* Create Order Button */}
+            <Button variant="contained" color="primary" onClick={() => navigate('/create')} style={{ marginBottom: '20px' }}>
+                Create Order
+            </Button>
+
+            {/* Orders Table */}
+            <TableContainer component={Paper}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Order ID</TableCell>
+                            <TableCell>Customer Name</TableCell>
+                            <TableCell>Product</TableCell>
+                            <TableCell>Quantity</TableCell>
+                            <TableCell>Total Price</TableCell>
+                            <TableCell>Status</TableCell>
+                            <TableCell>Actions</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {orders.map((order: any) => (
+                            <TableRow key={order._id}>
+                                <TableCell>{order._id}</TableCell>
+                                <TableCell>{order.customerName}</TableCell>
+                                <TableCell>{order.product}</TableCell>
+                                <TableCell>{order.quantity}</TableCell>
+                                <TableCell>${order.totalPrice.toFixed(2)}</TableCell>
+                                <TableCell>{order.status}</TableCell>
+                                <TableCell>
+                                    <Button variant="contained" color="secondary" onClick={() => navigate(`/edit/${order._id}`)} style={{ marginRight: '10px' }}>
+                                        Edit
+                                    </Button>
+                                    <Button variant="outlined" color="error" onClick={() => deleteMutation.mutate(order._id)}>
+                                        Delete
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </Container>
     );
 };
 

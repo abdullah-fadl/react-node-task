@@ -1,38 +1,154 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* General layout styles */
+.dashboard-layout {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  height: 100vh;
+  background-color: #f4f7fb;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #333;
+  color: #fff;
+  padding: 20px;
+  position: sticky;
+  top: 0;
+  height: 100%;
+}
+
+.sidebar nav ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sidebar nav ul li {
+  margin: 15px 0;
+}
+
+.sidebar nav ul li a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 18px;
+  display: block;
+}
+
+.sidebar nav ul li a:hover {
+  background-color: #575757;
+  padding: 5px;
+}
+
+/* Main content area */
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+}
+
+.content-wrapper {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Card design for orders list */
+.card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+}
+
+/* Table styling */
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.orders-table th, .orders-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.orders-table th {
+  background-color: #f2f2f2;
+}
+
+.orders-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Action button styling */
+.action-btn {
+  background-color: #007bff;
   color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  margin-right: 10px;
+  cursor: pointer;
 }
 
-.App-link {
-  color: #61dafb;
+.action-btn:hover {
+  background-color: #0056b3;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.create-order-btn {
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.create-order-btn:hover {
+  background-color: #218838;
+}
+
+/* Additional styling for responsive design */
+@media (max-width: 768px) {
+  .dashboard-layout {
+      flex-direction: column;
   }
-  to {
-    transform: rotate(360deg);
+
+  .sidebar {
+      width: 100%;
+      position: relative;
+      height: auto;
+  }
+
+  .main-content {
+      padding: 15px;
+  }
+
+  .card {
+      padding: 20px;
+  }
+
+  .orders-table th, .orders-table td {
+      padding: 8px;
+  }
+
+  .action-btn {
+      padding: 6px 12px;
+  }
+
+  .create-order-btn {
+      padding: 8px 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .orders-table th, .orders-table td {
+      padding: 6px;
+  }
+
+  .create-order-btn {
+      font-size: 14px;
+      padding: 6px 12px;
+  }
+
+  .action-btn {
+      padding: 6px 12px;
   }
 }

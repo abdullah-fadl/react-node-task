@@ -2,37 +2,77 @@ import React, { useState, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { createOrder, updateOrder, fetchOrderById } from '../api/ordersApi';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Controller, useForm } from 'react-hook-form';
+import {
+    Container,
+    Typography,
+    Button,
+    Grid,
+    TextField,
+    MenuItem,
+    FormControl,
+    InputLabel,
+    Select,
+    FormHelperText,
+    CircularProgress
+} from '@mui/material';
 
-const CreateEditOrder = () => {
+// Type for the order
+interface Order {
+    customerName: string;
+    product: string;
+    quantity: number;
+    price: number;
+    status: 'pending' | 'completed' | 'canceled';
+}
+
+const CreateEditOrder: React.FC = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
-    const [formData, setFormData] = useState({
-        customerName: '',
-        product: '',
-        quantity: 1,
-        price: 0,
-        status: 'pending',
-    });
+    // Initialize form data
+    const { data: order, isLoading, isError } = useQuery<Order | null>(
+        ['order', id],
+        () => fetchOrderById(id!),
+        {
+            enabled: !!id, // Only fetch if there's an id
+        }
+    );
 
-    const { data: order } = useQuery(['order', id], () => fetchOrderById(id!), {
-        enabled: !!id,
+    const {
+        register,
+        handleSubmit,
+        control, // Destructure control here
+        formState: { errors },
+        setValue,
+        reset,
+    } = useForm<Order>({
+        defaultValues: {
+            customerName: '',
+            product: '',
+            quantity: 1,
+            price: 0,
+            status: 'pending',
+        },
     });
 
     useEffect(() => {
         if (order) {
-            setFormData(order);
+            setValue('customerName', order.customerName);
+            setValue('product', order.product);
+            setValue('quantity', order.quantity);
+            setValue('price', order.price);
+            setValue('status', order.status);
         }
-    }, [order]);
+    }, [order, setValue]);
 
     const mutation = useMutation(
-        (data: any) => {
-            // If there's an id, update the order, otherwise create a new order
+        (data: Order) => {
             if (id) {
-                return updateOrder(id, data);  // Pass id and order data
+                return updateOrder(id, data);
             } else {
-                return createOrder(data);  // Only pass order data
+                return createOrder(data);
             }
         },
         {
@@ -40,51 +80,131 @@ const CreateEditOrder = () => {
                 queryClient.invalidateQueries('orders');
                 navigate('/');
             },
+            onError: (error: any) => {
+                console.error('Error creating/updating order:', error);
+            },
         }
     );
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        mutation.mutate({ ...formData, id });
+    const onSubmit = (data: Order) => {
+        mutation.mutate(data);
     };
 
+    if (isLoading) {
+        return (
+            <div style={{ textAlign: 'center' }}>
+                <CircularProgress />
+                <Typography variant="h6">Loading...</Typography>
+            </div>
+        );
+    }
+
+    if (isError) {
+        return <div>Error loading order data.</div>;
+    }
+
     return (
-        <form onSubmit={handleSubmit}>
-            <h2>{id ? 'Edit Order' : 'Create Order'}</h2>
-            <input
-                type="text"
-                placeholder="Customer Name"
-                value={formData.customerName}
-                onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
-            />
-            <input
-                type="text"
-                placeholder="Product"
-                value={formData.product}
-                onChange={(e) => setFormData({ ...formData, product: e.target.value })}
-            />
-            <input
-                type="number"
-                placeholder="Quantity"
-                value={formData.quantity}
-                onChange={(e) => setFormData({ ...formData, quantity: +e.target.value })}
-            />
-            <input
-                type="number"
-                placeholder="Price"
-                value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: +e.target.value })}
-            />
-            <select
-                value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-            >
-                <option value="pending">Pending</option>
-                <option value="completed">Completed</option>
-                <option value="canceled">Canceled</option>
-            </select>
-            <button type="submit">{id ? 'Update Order' : 'Create Order'}</button>
-        </form>
+        <Container maxWidth="sm">
+            <Typography variant="h4" gutterBottom align="center">
+                {id ? 'Edit Order' : 'Create Order'}
+            </Typography>
+
+            <form onSubmit={handleSubmit(onSubmit)} noValidate>
+                <Grid container spacing={3}>
+                    <Grid item xs={12}>
+                        <TextField
+                            fullWidth
+                            label="Customer Name"
+                            variant="outlined"
+                            id="customerName"
+                            {...register('customerName', {
+                                required: 'Customer name is required',
+                            })}
+                            error={!!errors.customerName}
+                            helperText={errors.customerName?.message}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12}>
+                        <TextField
+                            fullWidth
+                            label="Product"
+                            variant="outlined"
+                            id="product"
+                            {...register('product', { required: 'Product name is required' })}
+                            error={!!errors.product}
+                            helperText={errors.product?.message}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} md={6}>
+                        <TextField
+                            fullWidth
+                            label="Quantity"
+                            variant="outlined"
+                            type="number"
+                            id="quantity"
+                            {...register('quantity', {
+                                required: 'Quantity is required',
+                                min: { value: 1, message: 'Quantity must be at least 1' },
+                            })}
+                            error={!!errors.quantity}
+                            helperText={errors.quantity?.message}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} md={6}>
+                        <TextField
+                            fullWidth
+                            label="Price"
+                            variant="outlined"
+                            type="number"
+                            id="price"
+                            {...register('price', {
+                                required: 'Price is required',
+                                min: { value: 0, message: 'Price cannot be negative' },
+                            })}
+                            error={!!errors.price}
+                            helperText={errors.price?.message}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12}>
+                    <FormControl fullWidth error={!!errors.status}>
+                        <InputLabel>Status</InputLabel>
+                        <Controller
+                            name="status"
+                            control={control} // Pass control here
+                            defaultValue={order?.status || 'pending'} // Default value
+                            render={({ field }) => (
+                                <Select {...field} label="Status">
+                                    <MenuItem value="pending">Pending</MenuItem>
+                                    <MenuItem value="completed">Completed</MenuItem>
+                                    <MenuItem value="canceled">Canceled</MenuItem>
+                                </Select>
+                            )}
+                        />
+                        {errors.status && <FormHelperText>{errors.status.message}</FormHelperText>}
+                    </FormControl>
+                </Grid>
+                    <Grid item xs={12} className="form-actions">
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            fullWidth
+                            type="submit"
+                            disabled={mutation.isLoading}
+                        >
+                            {mutation.isLoading
+                                ? 'Submitting...'
+                                : id
+                                ? 'Update Order'
+                                : 'Create Order'}
+                        </Button>
+                    </Grid>
+                </Grid>
+            </form>
+        </Container>
     );
 };
 
