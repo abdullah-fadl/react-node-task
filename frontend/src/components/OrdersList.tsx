@@ -54,6 +54,9 @@ const OrdersList: React.FC = () => {
                                 <TableCell>${order.totalPrice.toFixed(2)}</TableCell>
                                 <TableCell>{order.status}</TableCell>
                                 <TableCell>
+                                <Button variant="contained" color="primary" onClick={() => navigate(`/details/${order._id}`)} style={{ marginRight: '10px' }}>
+                                        View Details
+                                    </Button>
                                     <Button variant="contained" color="secondary" onClick={() => navigate(`/edit/${order._id}`)} style={{ marginRight: '10px' }}>
                                         Edit
                                     </Button>
